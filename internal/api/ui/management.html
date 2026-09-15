@@ -1,0 +1,1811 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="description" content="proxy — your accounts, one gateway." />
+    <title>proxy · Account pools</title>
+    <style>
+      :root {
+        font-family:
+          Inter,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        color: #e9e9e9;
+        background: #101010;
+        font-synthesis: none;
+        --muted: #929292;
+        --line: #292929;
+        --blue: #62b3ee;
+        --orange: #eeb180;
+        --green: #89cdaa;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+      }
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+      button,
+      a,
+      input,
+      select {
+        -webkit-tap-highlight-color: transparent;
+      }
+      button,
+      a {
+        touch-action: manipulation;
+      }
+      button {
+        cursor: pointer;
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: wait;
+      }
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+      button:focus-visible,
+      a:focus-visible,
+      input:focus-visible,
+      select:focus-visible {
+        outline: 2px solid var(--blue);
+        outline-offset: 4px;
+      }
+      button {
+        color: inherit;
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        padding: 10px 15px;
+      }
+      button:hover,
+      a.button:hover {
+        background: #202020;
+        border-color: #494949;
+      }
+      button.primary,
+      .button.primary {
+        color: #171717;
+        background: #ededed;
+        border-color: #ededed;
+      }
+      button.primary:hover {
+        background: #fff;
+      }
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+      h1 {
+        font-size: 38px;
+        letter-spacing: -1.5px;
+        line-height: 1.2;
+        font-weight: 600;
+      }
+      h2 {
+        font-size: 18px;
+        font-weight: 550;
+      }
+      small,
+      .muted {
+        color: var(--muted);
+      }
+      small {
+        font-size: 12px;
+      }
+      .shell {
+        width: min(1392px, 100%);
+        margin: auto;
+        padding: 0 42px;
+      }
+      .topbar {
+        height: 86px;
+        display: flex;
+        align-items: center;
+        gap: 44px;
+        border-bottom: 1px solid var(--line);
+      }
+      .brand {
+        display: flex;
+        gap: 11px;
+        align-items: center;
+        font-weight: 650;
+        font-size: 23px;
+        letter-spacing: -0.8px;
+      }
+      .brandmark {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        background: #e9e9e9;
+        color: #111;
+        border-radius: 8px;
+        font-size: 23px;
+      }
+      nav {
+        display: flex;
+        align-items: stretch;
+        gap: 28px;
+        height: 100%;
+      }
+      nav button {
+        position: relative;
+        color: var(--muted);
+        border: 0;
+        border-radius: 0;
+        padding: 0;
+        font-size: 14px;
+      }
+      nav button:hover {
+        background: none;
+        color: #eee;
+      }
+      nav button[aria-current="page"] {
+        color: #eee;
+      }
+      nav button[aria-current="page"]:after {
+        content: "";
+        height: 2px;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #e5e5e5;
+      }
+      .connection {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--muted);
+        display: inline-block;
+      }
+      .dot.online {
+        background: var(--green);
+        box-shadow: 0 0 9px #89cdaa33;
+      }
+      .connection button {
+        margin-left: 8px;
+        font-size: 12px;
+        padding: 7px 10px;
+      }
+      .heading {
+        padding: 65px 0 30px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+      }
+      .eyebrow {
+        font-size: 11px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 14px;
+      }
+      .heading-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+      }
+      .icon-button {
+        padding: 9px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 37px;
+        height: 37px;
+      }
+      .icon-button svg {
+        width: 18px;
+        height: 18px;
+      }
+      .statusline {
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        padding: 23px 0;
+        font-size: 13px;
+      }
+      .statusline p {
+        color: var(--muted);
+      }
+      .statusline strong {
+        color: #ddd;
+        font-weight: 500;
+      }
+      .textlink {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .textlink:hover {
+        color: #eee;
+      }
+      .pools {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        padding: 38px 0;
+        border-bottom: 1px solid var(--line);
+      }
+      .pool {
+        padding: 0 32px;
+        border-right: 1px solid var(--line);
+        min-width: 0;
+      }
+      .pool:first-child {
+        padding-left: 0;
+      }
+      .pool:last-child {
+        padding-right: 0;
+        border-right: 0;
+      }
+      .provider-heading {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+      }
+      .provider-heading small {
+        margin-left: auto;
+      }
+      .provider-icon {
+        width: 37px;
+        height: 37px;
+        display: grid;
+        place-items: center;
+        border-radius: 10px;
+        color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 12%, transparent);
+        font-size: 26px;
+        font-weight: 400;
+      }
+      .stat {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        margin-top: 27px;
+        margin-bottom: 14px;
+      }
+      .stat strong {
+        font-size: 48px;
+        letter-spacing: -2px;
+        font-weight: 450;
+        color: var(--accent);
+      }
+      .stat strong span {
+        font-size: 24px;
+        letter-spacing: -0.5px;
+        margin-left: 2px;
+      }
+      .stat small {
+        font-size: 12px;
+      }
+      .window-label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .bars {
+        display: flex;
+        gap: 5px;
+        margin-top: 11px;
+      }
+      .bar {
+        height: 5px;
+        border-radius: 4px;
+        background: color-mix(in srgb, var(--accent) 16%, #101010);
+        overflow: hidden;
+        flex: 1;
+      }
+      .bar span {
+        display: block;
+        height: 100%;
+        border-radius: 4px;
+        background: var(--accent);
+      }
+      .pool-footer {
+        margin-top: 38px;
+        padding-top: 20px;
+        border-top: 1px solid var(--line);
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+      }
+      .pool-footer strong {
+        font-size: 22px;
+        font-weight: 450;
+      }
+      .filters {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 29px 0 20px;
+        flex-wrap: wrap;
+      }
+      .filters button {
+        border-color: transparent;
+        color: var(--muted);
+        font-size: 12px;
+        padding: 9px 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .filters button[aria-pressed="true"] {
+        background: #e6e6e6;
+        color: #181818;
+      }
+      .filters .filter-end {
+        margin-left: auto;
+      }
+      .search {
+        background: #151515;
+        border: 1px solid var(--line);
+        color: #eee;
+        padding: 9px 12px;
+        border-radius: 7px;
+        width: 195px;
+        font-size: 12px;
+      }
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .account-card {
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        padding: 23px;
+        min-height: 263px;
+        display: flex;
+        flex-direction: column;
+        transition:
+          border-color 0.16s,
+          background 0.16s;
+      }
+      .account-card:hover {
+        border-color: #414141;
+        background: #131313;
+      }
+      .account-heading {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: flex-start;
+      }
+      .account-heading h2 {
+        font-size: 14px;
+        overflow-wrap: anywhere;
+        line-height: 1.5;
+      }
+      .account-heading .symbol {
+        color: var(--accent);
+        font-size: 26px;
+        line-height: 1;
+      }
+      .plan {
+        font-size: 12px;
+        color: var(--accent);
+        margin-top: 4px;
+      }
+      .quota-window {
+        margin-top: 26px;
+      }
+      .quota-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .quota-row b {
+        font-weight: 500;
+        color: #ddd;
+      }
+      .account-note {
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 22px;
+        line-height: 1.6;
+      }
+      .account-footer {
+        margin-top: auto;
+        padding-top: 27px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 12px;
+        line-height: 1.8;
+      }
+      .account-footer .right {
+        text-align: right;
+      }
+      .badge {
+        font-size: 10px;
+        border: 1px solid #344238;
+        color: var(--green);
+        border-radius: 4px;
+        padding: 2px 6px;
+        white-space: nowrap;
+      }
+      .badge.paused {
+        color: var(--muted);
+        border-color: var(--line);
+      }
+      footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        color: #666;
+        font-size: 11px;
+        padding: 30px 0;
+      }
+      .empty {
+        border: 1px dashed var(--line);
+        border-radius: 10px;
+        text-align: center;
+        padding: 56px 24px;
+        grid-column: 1/-1;
+      }
+      .empty p {
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.8;
+        margin: 10px auto 22px;
+        max-width: 450px;
+      }
+      .notice {
+        background: #191713;
+        border: 1px solid #433929;
+        color: #ceba93;
+        border-radius: 8px;
+        font-size: 12px;
+        padding: 13px 16px;
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        align-items: center;
+        margin-top: 22px;
+      }
+      .notice button {
+        padding: 5px 9px;
+        color: inherit;
+        font-size: 11px;
+        white-space: nowrap;
+      }
+      .error {
+        background: #211717;
+        border-color: #613b3b;
+        color: #e6b6ad;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .table-wrap {
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 13px;
+      }
+      th {
+        font-size: 11px;
+        color: var(--muted);
+        font-weight: 400;
+        background: #151515;
+      }
+      td,
+      th {
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--line);
+      }
+      tr:last-child td {
+        border: 0;
+      }
+      td button {
+        font-size: 12px;
+        min-width: 82px;
+      }
+      td small {
+        display: block;
+        margin-top: 5px;
+      }
+      .settings-grid {
+        display: grid;
+        grid-template-columns: 1.35fr 1fr;
+        gap: 24px;
+      }
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        padding: 26px;
+      }
+      .panel > p {
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.7;
+        margin: 10px 0 22px;
+      }
+      .setting {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 21px 0;
+        border-top: 1px solid var(--line);
+        font-size: 13px;
+      }
+      .setting small {
+        display: block;
+        margin-top: 6px;
+        line-height: 1.5;
+      }
+      .setting input[type="checkbox"] {
+        accent-color: var(--green);
+        width: 18px;
+        height: 18px;
+      }
+      .setting select {
+        background: #181818;
+        color: #eee;
+        border: 1px solid var(--line);
+        padding: 8px;
+        border-radius: 5px;
+      }
+      .button {
+        display: inline-block;
+        border: 1px solid var(--line);
+        border-radius: 7px;
+        padding: 11px 15px;
+        font-size: 13px;
+      }
+      .code {
+        font-family: ui-monospace, SFMono-Regular, monospace;
+        color: #c4c4c4;
+        font-size: 12px;
+        line-height: 1.8;
+        background: #151515;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        overflow-wrap: anywhere;
+      }
+      .logs {
+        min-height: 350px;
+        max-height: 65vh;
+        overflow: auto;
+        margin: 0;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        font-family: ui-monospace, SFMono-Regular, monospace;
+        font-size: 11px;
+        line-height: 1.9;
+        color: #bbb;
+      }
+      .dialog {
+        width: min(430px, calc(100% - 32px));
+        background: #151515;
+        color: #eee;
+        border: 1px solid #363636;
+        border-radius: 14px;
+        padding: 30px;
+        box-shadow: 0 20px 100px #0009;
+      }
+      .dialog::backdrop {
+        background: #000a;
+        backdrop-filter: blur(5px);
+      }
+      .dialog h2 {
+        font-size: 22px;
+      }
+      .dialog p {
+        font-size: 13px;
+        line-height: 1.7;
+        color: var(--muted);
+        margin: 12px 0 24px;
+      }
+      .dialog label {
+        display: block;
+        font-size: 12px;
+        color: #ccc;
+      }
+      .dialog input {
+        display: block;
+        background: #0f0f0f;
+        border: 1px solid #363636;
+        padding: 12px;
+        color: #eee;
+        border-radius: 7px;
+        width: 100%;
+        margin-top: 9px;
+      }
+      .dialog .actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 22px;
+      }
+      .toast {
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #eee;
+        color: #151515;
+        padding: 13px 20px;
+        border-radius: 8px;
+        font-size: 13px;
+        max-width: calc(100% - 32px);
+        box-shadow: 0 4px 30px #0008;
+        z-index: 10;
+      }
+      .intro {
+        padding: 32px;
+        border: 1px solid var(--line);
+        border-radius: 11px;
+        margin: 30px 0;
+      }
+      .intro p {
+        margin: 10px 0 20px;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.7;
+      }
+      .intro button + button {
+        margin-left: 8px;
+      }
+      @media (min-width: 1550px) {
+        .heading {
+          padding-top: 76px;
+        }
+        .account-card {
+          min-height: 285px;
+        }
+      }
+      @media (max-width: 900px) {
+        .shell {
+          padding: 0 24px;
+        }
+        .topbar {
+          gap: 25px;
+        }
+        nav {
+          gap: 20px;
+        }
+        .connection > span {
+          display: none;
+        }
+        .pool {
+          padding: 0 20px;
+        }
+        .provider-heading {
+          flex-wrap: wrap;
+        }
+        .provider-heading small {
+          margin-left: 0;
+          width: 100%;
+        }
+        .stat strong {
+          font-size: 40px;
+        }
+        .cards {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+        .settings-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 600px) {
+        .shell {
+          padding: 0 18px;
+        }
+        .topbar {
+          height: auto;
+          min-height: 108px;
+          flex-wrap: wrap;
+          gap: 0;
+          padding-top: 20px;
+        }
+        .brand {
+          font-size: 21px;
+        }
+        .connection {
+          order: 1;
+        }
+        .topbar nav {
+          order: 2;
+          width: 100%;
+          height: 48px;
+          gap: 27px;
+          margin-top: 12px;
+        }
+        .heading {
+          padding-top: 35px;
+          align-items: flex-start;
+        }
+        h1 {
+          font-size: 30px;
+        }
+        .heading-actions {
+          gap: 10px;
+        }
+        .heading-actions small {
+          display: none;
+        }
+        .statusline {
+          align-items: flex-start;
+          font-size: 12px;
+          line-height: 1.7;
+        }
+        .statusline .textlink {
+          font-size: 11px;
+          white-space: nowrap;
+        }
+        .pools {
+          grid-template-columns: 1fr;
+          padding: 0;
+        }
+        .pool,
+        .pool:first-child,
+        .pool:last-child {
+          padding: 25px 0;
+          border-right: 0;
+          border-bottom: 1px solid var(--line);
+        }
+        .pool:last-child {
+          border-bottom: 0;
+        }
+        .provider-heading small {
+          margin-left: auto;
+          width: auto;
+        }
+        .stat {
+          margin-top: 18px;
+        }
+        .pool-footer {
+          margin-top: 22px;
+        }
+        .cards {
+          grid-template-columns: 1fr;
+        }
+        .filters {
+          gap: 4px;
+        }
+        .filters .filter-end {
+          width: 100%;
+          margin-top: 12px;
+        }
+        .search {
+          width: 100%;
+        }
+        .account-card {
+          min-height: 256px;
+        }
+        .toolbar {
+          align-items: flex-start;
+        }
+        .toolbar > div {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+        footer {
+          font-size: 10px;
+        }
+        .settings-grid .panel {
+          padding: 20px;
+        }
+        .notice {
+          line-height: 1.6;
+        }
+        .intro {
+          padding: 24px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <header class="topbar">
+        <a class="brand" href="#overview" aria-label="proxy overview"
+          ><span class="brandmark" aria-hidden="true">⇄</span>proxy</a
+        >
+        <nav aria-label="Main navigation">
+          <button data-page="overview" aria-current="page">Overview</button
+          ><button data-page="manage">Manage</button
+          ><button data-page="logs">Logs</button
+          ><button data-page="settings">Settings</button>
+        </nav>
+        <div class="connection">
+          <i id="connection-dot" class="dot"></i
+          ><span id="connection-label">Not connected</span
+          ><button id="connection-button">Connect</button>
+        </div>
+      </header>
+      <div id="demo-notice" class="notice" hidden>
+        <span
+          >Design preview · Sample accounts and quotas. No live requests or
+          account changes.</span
+        ><button id="leave-demo">Connect to proxy</button>
+      </div>
+      <div id="error" class="notice error" role="alert" hidden></div>
+      <main>
+        <div class="heading">
+          <div>
+            <p class="eyebrow">Your accounts. One gateway.</p>
+            <h1 id="page-title">Account pools</h1>
+          </div>
+          <div class="heading-actions">
+            <small id="updated">Waiting for connection</small
+            ><button
+              id="refresh"
+              class="icon-button"
+              aria-label="Refresh accounts and quotas"
+              title="Refresh"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.6"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M20 7v5h-5M4 17v-5h5" />
+                <path d="M6 7a7 7 0 0 1 12-2l2 3M4 16l2 3a7 7 0 0 0 12-2" />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <section id="connect-intro" class="intro">
+          <h2>A home for all your AI accounts.</h2>
+          <p>
+            Connect with your management key to see provider allowances, manage
+            accounts, and inspect your gateway.
+          </p>
+          <button class="primary" data-connect>Connect gateway</button
+          ><button id="show-demo">Explore preview</button>
+        </section>
+        <section id="page-overview" aria-label="Account overview">
+          <div class="statusline">
+            <p>
+              <strong id="gateway-status">Gateway offline</strong> ·
+              <span id="gateway-description"
+                >Connect to load your account pools</span
+              >
+            </p>
+            <a class="textlink" href="#manage">Manage accounts ↗</a>
+          </div>
+          <div id="pools" class="pools"></div>
+          <div class="filters" id="filters">
+            <button data-filter="all" aria-pressed="true">All pools</button
+            ><button data-filter="codex" aria-pressed="false">
+              <i class="dot" style="background: var(--blue)"></i>Codex</button
+            ><button data-filter="claude" aria-pressed="false">
+              <i class="dot" style="background: var(--orange)"></i
+              >Claude</button
+            ><button data-filter="xai" aria-pressed="false">
+              <i class="dot" style="background: var(--green)"></i>Grok</button
+            ><button data-filter="other" aria-pressed="false">Other</button>
+            <div class="filter-end">
+              <input
+                id="search"
+                class="search"
+                type="search"
+                aria-label="Search accounts"
+                placeholder="Search accounts…"
+              />
+            </div>
+          </div>
+          <div id="cards" class="cards"></div>
+        </section>
+        <section id="page-manage" hidden aria-label="Manage accounts">
+          <div class="toolbar">
+            <small>Accounts available to your gateway</small>
+            <div>
+              <a
+                class="button advanced"
+                href="?panel=upstream&amp;safe-mode=configure"
+                target="_blank"
+                rel="noopener"
+                >Provider sign-in ↗</a
+              ><button id="import-button" class="primary">
+                + Import account</button
+              ><input
+                type="file"
+                id="import-file"
+                accept=".json,application/json"
+                hidden
+              />
+            </div>
+          </div>
+          <div id="manage-content"></div>
+        </section>
+        <section id="page-logs" hidden aria-label="Gateway logs">
+          <div class="toolbar">
+            <small>Latest 300 lines · refresh to update</small
+            ><input
+              id="log-search"
+              class="search"
+              type="search"
+              placeholder="Filter logs…"
+              aria-label="Filter logs"
+            />
+          </div>
+          <div class="panel">
+            <pre id="log-output" class="logs">
+Connect to view gateway logs.</pre
+            >
+          </div>
+        </section>
+        <section id="page-settings" hidden aria-label="Gateway settings">
+          <div class="settings-grid">
+            <div class="panel">
+              <h2>Gateway preferences</h2>
+              <p>Changes apply to the connected proxy server.</p>
+              <form id="settings-form">
+                <label class="setting"
+                  ><span
+                    >Request logging<small
+                      >Save server logs to a local file.</small
+                    ></span
+                  ><input type="checkbox" id="logging" disabled /></label
+                ><label class="setting"
+                  ><span
+                    >Usage statistics<small
+                      >Collect request and token usage.</small
+                    ></span
+                  ><input type="checkbox" id="usage" disabled /></label
+                ><label class="setting"
+                  ><span
+                    >Routing strategy<small
+                      >Choose how accounts share requests.</small
+                    ></span
+                  ><select id="routing" disabled>
+                    <option value="round-robin">Round robin</option>
+                    <option value="fill-first">Fill first</option>
+                  </select></label
+                ><button
+                  type="submit"
+                  class="primary"
+                  id="save-settings"
+                  disabled
+                >
+                  Save preferences
+                </button>
+              </form>
+            </div>
+            <div class="panel">
+              <h2>Connection</h2>
+              <p>
+                Use this base URL in a compatible API client. Authenticate with
+                a proxy API key from your server configuration.
+              </p>
+              <div id="base-url" class="code">http://127.0.0.1:8317/v1</div>
+              <div class="setting">
+                <span
+                  >Management key<small
+                    >Held in memory until you disconnect or reload.</small
+                  ></span
+                ><button data-connect>Change</button>
+              </div>
+              <a
+                class="button advanced"
+                href="?panel=upstream&amp;safe-mode=configure"
+                target="_blank"
+                rel="noopener"
+                >Open advanced settings ↗</a
+              >
+              <p style="margin-top: 18px">
+                API keys, OAuth sign-in, model aliases, and provider
+                configuration are available in the advanced panel.
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+      <footer>
+        <span
+          >proxy <span style="color: #424242">/</span> Personal AI gateway</span
+        ><a
+          href="https://github.com/krisyotam/proxy"
+          target="_blank"
+          rel="noopener"
+          >Source on GitHub ↗</a
+        >
+      </footer>
+    </div>
+    <dialog id="connect-dialog" class="dialog">
+      <form id="connect-form">
+        <h2>Connect to proxy</h2>
+        <p>
+          Enter the management key from your local config.yaml. This dashboard
+          connects only to the server serving this page.
+        </p>
+        <label
+          >Management key<input
+            id="management-key"
+            type="password"
+            required
+            autocomplete="off"
+            placeholder="Enter your management key"
+        /></label>
+        <p id="connect-error" role="alert" hidden></p>
+        <div class="actions">
+          <button type="button" id="cancel-connect">Cancel</button
+          ><button class="primary" id="submit-connect" type="submit">
+            Connect
+          </button>
+        </div>
+      </form>
+    </dialog>
+    <div id="toast" class="toast" role="status" hidden></div>
+    <script>
+      "use strict";
+      const PROVIDERS = {
+        codex: { name: "Codex", color: "#62b3ee", symbol: "◎" },
+        claude: { name: "Claude", color: "#eeb180", symbol: "✳" },
+        xai: { name: "Grok", color: "#89cdaa", symbol: "𝕏" },
+      };
+      const escapeHTML = (value) =>
+        String(value ?? "").replace(
+          /[&<>"']/g,
+          (c) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[c],
+        );
+      const finite = (value) =>
+        value !== null &&
+        value !== undefined &&
+        value !== "" &&
+        Number.isFinite(Number(value));
+      const clamp = (n) => Math.max(0, Math.min(100, n));
+      function providerKey(account) {
+        const p = String(
+          account.provider || account.type || "other",
+        ).toLowerCase();
+        return p === "grok" ? "xai" : p === "anthropic" ? "claude" : p;
+      }
+      function providerInfo(key) {
+        return (
+          PROVIDERS[key] || {
+            name: key.charAt(0).toUpperCase() + key.slice(1),
+            color: "#b1a1de",
+            symbol: "◇",
+          }
+        );
+      }
+      function remainingTime(value) {
+        if (!value) return "Not reported";
+        const numeric = finite(value);
+        const date = numeric ? new Date(Number(value) * 1000) : new Date(value);
+        if (!Number.isFinite(date.getTime())) return "Not reported";
+        const minutes = Math.ceil((date - Date.now()) / 60000);
+        if (minutes <= 0) return "Awaiting update";
+        const days = Math.floor(minutes / 1440),
+          hours = Math.floor((minutes % 1440) / 60);
+        return days
+          ? `${days} d ${hours} hr`
+          : hours
+            ? `${hours} hr ${minutes % 60} min`
+            : `${minutes} min`;
+      }
+      function quotaWindows(account) {
+        const normalized = account.normalizedQuota;
+        if (normalized?.groups) {
+          return normalized.groups.flatMap((g) =>
+            (g.buckets || [])
+              .filter((b) => finite(b.remainingFraction))
+              .map((b) => ({
+                label:
+                  [g.displayName, b.window || b.description]
+                    .filter(Boolean)
+                    .join(" · ") || "Allowance",
+                remaining: clamp(Number(b.remainingFraction) * 100),
+                reset: b.resetTime,
+              })),
+          );
+        }
+        const q = account.quota || {},
+          s = Object.fromEntries(
+            Object.entries(q.signals || {}).map(([k, v]) => [
+              k.toLowerCase(),
+              v,
+            ]),
+          ),
+          windows = [];
+        if (providerKey(account) === "codex")
+          for (const prefix of ["primary", "secondary"]) {
+            const p = "x-codex-" + prefix + "-",
+              used = s[p + "used-percent"];
+            if (finite(used)) {
+              const minutes = Number(s[p + "window-minutes"]);
+              windows.push({
+                label:
+                  minutes === 10080
+                    ? "Weekly window"
+                    : minutes === 300
+                      ? "5-hour window"
+                      : minutes
+                        ? `${minutes / 60}-hour window`
+                        : `${prefix === "primary" ? "Primary" : "Secondary"} window`,
+                remaining: clamp(100 - Number(used)),
+                reset:
+                  s[p + "reset-at"] ||
+                  (finite(s[p + "reset-after-seconds"]) && q.observed_at
+                    ? Date.parse(q.observed_at) / 1000 +
+                      Number(s[p + "reset-after-seconds"])
+                    : null),
+              });
+            }
+          }
+        if (providerKey(account) === "claude")
+          for (const [window, label] of [
+            ["5h", "5-hour window"],
+            ["7d", "Weekly window"],
+          ]) {
+            const p = "anthropic-ratelimit-unified-" + window + "-";
+            if (finite(s[p + "utilization"]))
+              windows.push({
+                label,
+                remaining: clamp(100 - Number(s[p + "utilization"]) * 100),
+                reset: s[p + "reset"],
+              });
+          }
+        return windows;
+      }
+      function nextReset(account) {
+        return quotaWindows(account)
+          .map((w) => w.reset)
+          .filter(Boolean)
+          .map((r) => (finite(r) ? Number(r) * 1000 : Date.parse(r)))
+          .filter(Number.isFinite)
+          .sort((a, b) => a - b)
+          .map((t) => new Date(t).toISOString())[0];
+      }
+      function primaryWindow(account) {
+        const w = quotaWindows(account);
+        return w.find((x) => /week|7d/i.test(x.label)) || w[0];
+      }
+      function poolSummary(accounts) {
+        const enabled = accounts.filter((a) => !a.disabled),
+          known = enabled.map(primaryWindow).filter(Boolean);
+        return {
+          known: known.length,
+          total: enabled.length,
+          remaining: known.reduce((n, w) => n + w.remaining, 0),
+          success: accounts.reduce((n, a) => n + (Number(a.success) || 0), 0),
+        };
+      }
+      function planName(a) {
+        const s = Object.fromEntries(
+          Object.entries(a.quota?.signals || {}).map(([k, v]) => [
+            k.toLowerCase(),
+            v,
+          ]),
+        );
+        return (
+          a.normalizedQuota?.subscription?.tierName ||
+          s["x-codex-plan-type"] ||
+          a.id_token?.chatgpt_plan_type ||
+          a.account_type ||
+          "Connected account"
+        );
+      }
+      globalThis.ProxyData = {
+        quotaWindows,
+        primaryWindow,
+        poolSummary,
+        escapeHTML,
+        providerKey,
+        nextReset,
+      };
+      if (typeof document !== "undefined") {
+        const $ = (id) => document.getElementById(id),
+          params = new URLSearchParams(location.search);
+        const state = {
+          accounts: [],
+          key: "",
+          connected: false,
+          demo: params.get("demo") === "1" || location.protocol === "file:",
+          filter: "all",
+          search: "",
+          page: "overview",
+          logs: [],
+          busy: false,
+          settingsLoaded: false,
+          generation: 0,
+        };
+        let toastTimer;
+        const isLocalFile = location.protocol === "file:";
+        function toast(message) {
+          $("toast").textContent = message;
+          $("toast").hidden = false;
+          clearTimeout(toastTimer);
+          toastTimer = setTimeout(() => ($("toast").hidden = true), 4500);
+        }
+        function showError(message) {
+          $("error").textContent = message;
+          $("error").hidden = !message;
+        }
+        function previewAccounts() {
+          const now = Date.now(),
+            at = (n) => new Date(now + n * 3600000).toISOString();
+          return [
+            {
+              name: "personal.json",
+              label: "personal",
+              email: "you@personal",
+              provider: "codex",
+              account_type: "Pro",
+              success: 148,
+              normalizedQuota: {
+                groups: [
+                  {
+                    buckets: [
+                      {
+                        window: "Weekly window",
+                        remainingFraction: 0,
+                        resetTime: at(68),
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+            {
+              name: "work.json",
+              label: "work",
+              email: "you@work",
+              provider: "codex",
+              account_type: "Pro",
+              success: 206,
+              normalizedQuota: {
+                groups: [
+                  {
+                    buckets: [
+                      {
+                        window: "Weekly window",
+                        remainingFraction: 0,
+                        resetTime: at(69),
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+            {
+              name: "studio.json",
+              label: "studio",
+              email: "you@studio",
+              provider: "codex",
+              account_type: "Pro",
+              success: 92,
+              normalizedQuota: {
+                groups: [
+                  {
+                    buckets: [
+                      {
+                        window: "Weekly window",
+                        remainingFraction: 0.67,
+                        resetTime: at(148),
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+            {
+              name: "claude.json",
+              label: "personal",
+              email: "you@personal",
+              provider: "claude",
+              account_type: "Max 20×",
+              success: 321,
+              normalizedQuota: {
+                groups: [
+                  {
+                    buckets: [
+                      {
+                        window: "5-hour window",
+                        remainingFraction: 0.98,
+                        resetTime: at(3),
+                      },
+                      {
+                        window: "Weekly window",
+                        remainingFraction: 0.99,
+                        resetTime: at(110),
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+            {
+              name: "grok.json",
+              label: "personal",
+              email: "you@personal",
+              provider: "xai",
+              account_type: "SuperGrok Heavy",
+              success: 84,
+              normalizedQuota: {
+                groups: [
+                  {
+                    buckets: [
+                      {
+                        window: "Weekly window",
+                        remainingFraction: 0.96,
+                        resetTime: at(89),
+                      },
+                    ],
+                  },
+                ],
+              },
+            },
+          ].map((a, i) => ({
+            ...a,
+            auth_index: String(i),
+            status: "active",
+            disabled: false,
+          }));
+        }
+        async function api(path, options = {}) {
+          if (state.demo)
+            throw new Error("Connect to your gateway to make changes.");
+          if (!state.key || isLocalFile)
+            throw new Error(
+              "Open this dashboard from your proxy server and connect first.",
+            );
+          const response = await fetch("/v0/management" + path, {
+            ...options,
+            cache: "no-store",
+            credentials: "omit",
+            redirect: "error",
+            headers: {
+              Authorization: "Bearer " + state.key,
+              ...(options.body && !(options.body instanceof FormData)
+                ? { "Content-Type": "application/json" }
+                : {}),
+              ...options.headers,
+            },
+          });
+          const raw = await response.text();
+          let data;
+          try {
+            data = JSON.parse(raw);
+          } catch {
+            data = {};
+          }
+          if (!response.ok)
+            throw new Error(
+              response.status === 401 || response.status === 403
+                ? "Management key rejected. Check your key and local access settings."
+                : response.status === 404
+                  ? "Management API unavailable. Set remote-management.secret-key in config.yaml, then restart."
+                  : data.error || `Request failed (${response.status})`,
+            );
+          return data;
+        }
+        function bar(value) {
+          return `<div class="bar"><span style="width:${finite(value) ? clamp(value) : 0}%"></span></div>`;
+        }
+        function renderOverview() {
+          const keys = [
+            ...Object.keys(PROVIDERS),
+            ...new Set(
+              state.accounts.map(providerKey).filter((k) => !PROVIDERS[k]),
+            ),
+          ];
+          $("pools").style.gridTemplateColumns =
+            keys.length > 3 && innerWidth > 600
+              ? "repeat(3,minmax(0,1fr))"
+              : "";
+          $("pools").innerHTML = keys
+            .map((key) => {
+              const p = providerInfo(key),
+                accounts = state.accounts.filter((a) => providerKey(a) === key),
+                sum = poolSummary(accounts);
+              return `<article class="pool" style="--accent:${p.color}"><div class="provider-heading"><span class="provider-icon" aria-hidden="true">${p.symbol}</span><h2>${escapeHTML(p.name)}</h2><small>${accounts.length} account${accounts.length === 1 ? "" : "s"}</small></div><div class="stat"><strong>${sum.known ? Math.round(sum.remaining) + "<span>%</span>" : "—"}</strong><small>${sum.known ? "of " + sum.known * 100 + "% capacity" : "No quota reported"}</small></div><p class="window-label">${sum.known ? "Allowance remaining" : "Connect an account to get started"}${sum.known < sum.total ? ` · ${sum.known}/${sum.total} reporting` : ""}</p><div class="bars">${accounts.length ? accounts.map((a) => bar(a.disabled ? null : primaryWindow(a)?.remaining)).join("") : bar(null)}</div><div class="pool-footer"><strong>${sum.success.toLocaleString()}</strong><small>successful requests</small></div></article>`;
+            })
+            .join("");
+          const accounts = state.accounts.filter(
+            (a) =>
+              (state.filter === "all" ||
+                (state.filter === "other"
+                  ? !PROVIDERS[providerKey(a)]
+                  : providerKey(a) === state.filter)) &&
+              [a.name, a.label, a.email, providerKey(a)]
+                .join(" ")
+                .toLowerCase()
+                .includes(state.search),
+          );
+          $("cards").innerHTML = accounts.length
+            ? accounts
+                .map((a) => {
+                  const p = providerInfo(providerKey(a)),
+                    windows = quotaWindows(a);
+                  return `<article class="account-card" style="--accent:${p.color}"><div class="account-heading"><div><h2>${escapeHTML(a.label || a.email || a.name)}</h2><p class="plan">${escapeHTML(planName(a))}</p></div><span class="symbol" aria-label="${escapeHTML(p.name)}">${p.symbol}</span></div>${windows.length ? windows.map((w) => `<div class="quota-window"><div class="quota-row"><span>${escapeHTML(w.label)}</span><b>${Math.round(w.remaining)}% left</b></div><div class="bars">${bar(w.remaining)}</div></div>`).join("") : '<div class="quota-window"><div class="quota-row"><span>Allowance</span><b>Not reported</b></div><div class="bars">' + bar(null) + "</div></div>"}<p class="account-note">${escapeHTML(a.quotaError || a.status_message || a.email || (a.disabled ? "Excluded from routing" : "Ready for requests"))}</p><div class="account-footer"><div><small>Next reset</small><br>${escapeHTML(remainingTime(nextReset(a)))}</div><div class="right"><small>Account status</small><br><span class="badge ${a.disabled ? "paused" : ""}">${a.disabled ? "Paused" : escapeHTML(a.status || "Available")}</span></div></div></article>`;
+                })
+                .join("")
+            : `<div class="empty"><h2>${state.accounts.length ? "No matching accounts" : state.connected ? "Your first account starts here" : "Your pools will appear here"}</h2><p>${state.accounts.length ? "Try another provider or search term." : "Import an account or sign in to a provider to bring your gateway online."}</p><button data-manage>Manage accounts ↗</button></div>`;
+          document
+            .querySelectorAll("[data-manage]")
+            .forEach((b) => (b.onclick = () => (location.hash = "manage")));
+          document
+            .querySelectorAll("[data-filter]")
+            .forEach((b) =>
+              b.setAttribute(
+                "aria-pressed",
+                String(b.dataset.filter === state.filter),
+              ),
+            );
+        }
+        function renderManage() {
+          $("manage-content").innerHTML = state.accounts.length
+            ? `<div class="table-wrap"><table><thead><tr><th>ACCOUNT</th><th>PROVIDER</th><th>STATUS</th><th>ROUTING</th></tr></thead><tbody>${state.accounts.map((a, i) => `<tr><td>${escapeHTML(a.label || a.email || a.name)}<small>${escapeHTML(a.name)}</small></td><td>${escapeHTML(providerInfo(providerKey(a)).name)}</td><td><span class="badge ${a.disabled ? "paused" : ""}">${a.disabled ? "Paused" : escapeHTML(a.status || "Available")}</span></td><td><button data-toggle="${i}" ${!state.connected ? "disabled" : ""}>${a.disabled ? "Enable" : "Pause"}</button></td></tr>`).join("")}</tbody></table></div>`
+            : '<div class="empty"><h2>No accounts connected</h2><p>Import a provider credential JSON file, or open Provider sign-in to connect through OAuth.</p></div>';
+          document.querySelectorAll("[data-toggle]").forEach(
+            (b) =>
+              (b.onclick = async () => {
+                b.disabled = true;
+                const a = state.accounts[Number(b.dataset.toggle)];
+                try {
+                  await api("/auth-files/status", {
+                    method: "PATCH",
+                    body: JSON.stringify({
+                      name: a.name,
+                      auth_index: a.auth_index,
+                      disabled: !a.disabled,
+                    }),
+                  });
+                  await refresh();
+                  toast(a.disabled ? "Account enabled." : "Account paused.");
+                } catch (e) {
+                  showError(e.message);
+                } finally {
+                  b.disabled = false;
+                }
+              }),
+          );
+        }
+        function render() {
+          $("demo-notice").hidden = !state.demo;
+          $("connect-intro").hidden = state.connected || state.demo;
+          $("connection-label").textContent = state.demo
+            ? "Preview mode"
+            : state.connected
+              ? "Local gateway"
+              : "Not connected";
+          $("connection-dot").classList.toggle("online", state.connected);
+          $("connection-button").textContent = state.connected
+            ? "Disconnect"
+            : "Connect";
+          $("gateway-status").textContent = state.demo
+            ? "Preview gateway"
+            : state.connected
+              ? "Gateway connected"
+              : "Gateway offline";
+          $("gateway-description").textContent = state.demo
+            ? "Sample accounts and provider allowances"
+            : state.connected
+              ? "Live gateway accounts and provider observations"
+              : "Connect to load your account pools";
+          $("import-button").disabled = !state.connected;
+          $("refresh").disabled =
+            state.busy || (!state.connected && !state.demo);
+          document.querySelectorAll(".advanced").forEach((a) => {
+            a.href = isLocalFile
+              ? "http://127.0.0.1:8317/management.html?panel=upstream&safe-mode=configure"
+              : "?panel=upstream&safe-mode=configure";
+          });
+          renderOverview();
+          renderManage();
+        }
+        async function refresh() {
+          if (state.busy) return;
+          state.busy = true;
+          render();
+          showError("");
+          const generation = state.generation;
+          try {
+            if (state.demo) {
+              state.accounts = previewAccounts();
+              $("updated").textContent = "Sample data · preview";
+            } else {
+              const data = await api("/auth-files");
+              if (generation !== state.generation) return;
+              state.accounts = Array.isArray(data.files) ? data.files : [];
+              render();
+              const tasks = state.accounts.filter(
+                (a) => a.supports_quota && a.auth_index && !a.disabled,
+              );
+              let next = 0;
+              await Promise.all(
+                Array.from({ length: Math.min(3, tasks.length) }, async () => {
+                  while (
+                    next < tasks.length &&
+                    generation === state.generation
+                  ) {
+                    const a = tasks[next++];
+                    try {
+                      a.normalizedQuota = await api("/quota/fetch", {
+                        method: "POST",
+                        body: JSON.stringify({
+                          auth_index: a.auth_index,
+                          provider: a.quota_provider || providerKey(a),
+                        }),
+                      });
+                    } catch (e) {
+                      a.quotaError = "Quota fetch failed · " + e.message;
+                    }
+                  }
+                }),
+              );
+              if (generation !== state.generation) return;
+              $("updated").textContent =
+                "Updated " +
+                new Date().toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                });
+            }
+            if (state.page === "logs") await loadLogs();
+          } catch (e) {
+            showError(e.message);
+            $("updated").textContent = "Refresh failed · data may be stale";
+          } finally {
+            state.busy = false;
+            render();
+          }
+        }
+        function renderLogs() {
+          const term = $("log-search").value.toLowerCase();
+          $("log-output").textContent =
+            state.logs
+              .filter((l) => String(l).toLowerCase().includes(term))
+              .join("\n") || "No matching log lines.";
+        }
+        async function loadLogs() {
+          const generation = state.generation;
+          if (state.demo) {
+            state.logs = [
+              "[preview] Gateway listening on 127.0.0.1:8317",
+              "[preview] 5 sample accounts loaded across 3 providers",
+              "[preview] GET /v1/models 200",
+              "[preview] POST /v1/responses 200 · codex",
+              "[preview] POST /v1/messages 200 · claude",
+            ];
+            renderLogs();
+            return;
+          }
+          if (!state.connected) {
+            $("log-output").textContent = "Connect to view gateway logs.";
+            return;
+          }
+          try {
+            const data = await api("/logs?limit=300");
+            if (generation !== state.generation) return;
+            state.logs = Array.isArray(data.lines) ? data.lines : [];
+            renderLogs();
+          } catch (e) {
+            if (generation === state.generation)
+              $("log-output").textContent = e.message;
+          }
+        }
+        async function loadSettings() {
+          const generation = state.generation;
+          state.settingsLoaded = false;
+          ["logging", "usage", "routing", "save-settings"].forEach(
+            (id) => ($(id).disabled = true),
+          );
+          if (!state.connected) return;
+          try {
+            const data = await api("/config");
+            if (generation !== state.generation) return;
+            $("logging").checked = Boolean(data["logging-to-file"]);
+            $("usage").checked = Boolean(data["usage-statistics-enabled"]);
+            $("routing").value = data.routing?.strategy || "round-robin";
+            state.settingsLoaded = true;
+            ["logging", "usage", "routing", "save-settings"].forEach(
+              (id) => ($(id).disabled = false),
+            );
+          } catch (e) {
+            showError(e.message);
+          }
+        }
+        function navigate() {
+          state.page = ["overview", "manage", "logs", "settings"].includes(
+            location.hash.slice(1),
+          )
+            ? location.hash.slice(1)
+            : "overview";
+          const titles = {
+            overview: "Account pools",
+            manage: "Manage accounts",
+            logs: "Gateway logs",
+            settings: "Settings",
+          };
+          $("page-title").textContent = titles[state.page];
+          document.title = "proxy · " + titles[state.page];
+          document.querySelectorAll("[data-page]").forEach((b) => {
+            if (b.dataset.page === state.page)
+              b.setAttribute("aria-current", "page");
+            else b.removeAttribute("aria-current");
+          });
+          for (const page of Object.keys(titles))
+            $("page-" + page).hidden = page !== state.page;
+          if (state.page === "logs") loadLogs();
+          if (state.page === "settings") loadSettings();
+        }
+        function openConnect() {
+          if (isLocalFile) {
+            toast(
+              "Start proxy, then open http://127.0.0.1:8317/management.html to connect.",
+            );
+            return;
+          }
+          $("connect-error").hidden = true;
+          $("connect-dialog").showModal();
+          $("management-key").focus();
+        }
+        function disconnect() {
+          state.generation++;
+          state.key = "";
+          state.connected = false;
+          state.demo = false;
+          state.accounts = [];
+          state.logs = [];
+          state.settingsLoaded = false;
+          $("updated").textContent = "Waiting for connection";
+          $("log-output").textContent = "Connect to view gateway logs.";
+          showError("");
+          render();
+          navigate();
+        }
+        $("connection-button").onclick = () =>
+          state.connected ? disconnect() : openConnect();
+        document
+          .querySelectorAll("[data-connect]")
+          .forEach((b) => (b.onclick = openConnect));
+        $("leave-demo").onclick = openConnect;
+        $("cancel-connect").onclick = () => $("connect-dialog").close();
+        $("connect-form").onsubmit = async (event) => {
+          event.preventDefault();
+          const oldKey = state.key,
+            oldDemo = state.demo;
+          state.key = $("management-key").value.trim();
+          state.demo = false;
+          $("submit-connect").disabled = true;
+          try {
+            const data = await api("/auth-files");
+            state.generation++;
+            state.connected = true;
+            state.accounts = data.files || [];
+            $("management-key").value = "";
+            $("connect-dialog").close();
+            render();
+            await refresh();
+            navigate();
+          } catch (e) {
+            state.key = oldKey;
+            state.demo = oldDemo;
+            $("connect-error").textContent = e.message;
+            $("connect-error").hidden = false;
+          } finally {
+            $("submit-connect").disabled = false;
+          }
+        };
+        $("show-demo").onclick = () => {
+          state.demo = true;
+          refresh();
+          render();
+        };
+        $("refresh").onclick = refresh;
+        window.addEventListener("hashchange", navigate);
+        document
+          .querySelectorAll("[data-page]")
+          .forEach((b) => (b.onclick = () => (location.hash = b.dataset.page)));
+        $("filters").addEventListener("click", (e) => {
+          const b = e.target.closest("[data-filter]");
+          if (!b) return;
+          state.filter = b.dataset.filter;
+          renderOverview();
+        });
+        $("search").oninput = (e) => {
+          state.search = e.target.value.toLowerCase();
+          renderOverview();
+        };
+        $("log-search").oninput = renderLogs;
+        $("import-button").onclick = () => $("import-file").click();
+        $("import-file").onchange = async (event) => {
+          const file = event.target.files[0];
+          if (!file) return;
+          try {
+            JSON.parse(await file.text());
+            const form = new FormData();
+            form.append("file", file);
+            $("import-button").disabled = true;
+            await api("/auth-files", { method: "POST", body: form });
+            await refresh();
+            toast("Account imported.");
+          } catch (e) {
+            showError("Import failed: " + e.message);
+          } finally {
+            event.target.value = "";
+            $("import-button").disabled = !state.connected;
+          }
+        };
+        $("settings-form").onsubmit = async (event) => {
+          event.preventDefault();
+          if (!state.settingsLoaded) return;
+          $("save-settings").disabled = true;
+          showError("");
+          try {
+            for (const [path, value] of [
+              ["logging-to-file", $("logging").checked],
+              ["usage-statistics-enabled", $("usage").checked],
+              ["routing/strategy", $("routing").value],
+            ])
+              await api("/" + path, {
+                method: "PUT",
+                body: JSON.stringify({ value }),
+              });
+            toast("Preferences saved.");
+          } catch (e) {
+            showError("Some preferences may have saved. " + e.message);
+          } finally {
+            await loadSettings();
+          }
+        };
+        $("base-url").textContent = isLocalFile
+          ? "http://127.0.0.1:8317/v1"
+          : location.origin + "/v1";
+        render();
+        navigate();
+        if (state.demo) refresh();
+      }
+    </script>
+  </body>
+</html>

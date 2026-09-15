@@ -1,5 +1,7 @@
 # Binaries
 cli-proxy-api
+/proxy
+/.proxy-local-credentials
 *.exe
 
 # Configuration
